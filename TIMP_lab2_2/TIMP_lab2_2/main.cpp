@@ -1,39 +1,34 @@
-#include  "TableCipher.h"
+#include "TableCipher.h"
 using namespace std;
-
-int main(int argc, char **argv)
+void check(const string& Text, const string& key)
 {
-    try {
-        locale loc("ru_RU.UTF-8");
-        locale::global(loc);
-        int key;
-        wstring text;
-        int op;
-        wcout<<L"Cipher ready. Input key: ";
-        wcin>>key;
-        tableCipher cipher(key);
-        do {
-            wcout<<L"Cipher ready. Input operation (0-exit, 1-encrypt, 2-decrypt): ";
-            wcin>>op;
-            if (op > 2) {
-                throw cipher_error("Illegal operation\n");
-            } else if (op >0) {
-                wcout<<L"Cipher ready. Input text: ";
-                wcin>>text;
-                std::wstring vtext=cipher.toValid(text);
-                if (op==1) {
-                    wcout<<L"Encrypted text: "<<cipher.encrypt(vtext)<<endl;
-                } else {
-                    wcout<<L"Decrypted text: "<<cipher.decrypt(vtext)<<endl;
-                }
-            }
-        } while (op!=0);
-    } catch (const cipher_error& e) {
-        cerr << "Error: " << e.what() << endl;
-        return 1;
-    } catch (const exception& e) {
-        cerr << "Exception: " << e.what() << endl;
-        return 1;
+	try {
+		string cipherText;
+		string decryptedText;
+		if (key.empty())
+            throw cipher_error("Empty key");
+        if (stoi(key) > 1) {
+            modAlphaCipher cipher(stoi(key));
+            cipherText = cipher.encrypt(Text);
+            decryptedText = cipher.decrypt(cipherText);
+			cout<<"key="<<key<<endl;
+			cout<<cipherText<<endl;
+			cout<<decryptedText<<endl;
+		}else
+			throw cipher_error(std::string("Invalid key ")+key);
 
-    }
+	
+ 	} catch (const cipher_error & e) {
+ 		cerr<<"Error: "<<e.what()<<endl;
+ }
+}
+int main()
+{
+    check("ROMANBULGARIN","-5");
+    check("ROMANBULGARIN","");
+    check("ROM123ANBU456LGA789RIN","5");
+    check("","5");
+    check("ROMANBULGARIN","5");
+    check("romanbulgarin","5");
+    check("ROMAN BULGARIN","100");
 }
