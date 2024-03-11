@@ -3,30 +3,32 @@
 #include <string>
 #include <map>
 #include <locale>
-#include <stdexcept>
-
+#include <codecvt>
 using namespace std;
-
-class cipher_error : public std::invalid_argument {
+class modAlphaCipher
+{
+private:
+    wstring_convert<codecvt_utf8<wchar_t>, wchar_t> codec;
+    wstring numAlpha =L"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"; //алфавит по порядку
+    map <wchar_t,int> alphaNum; //ассоциативный массив "номер по символу"
+    vector <int> key; //ключ
+    vector<int> convert(const wstring& s); //преобразование строка-вектор
+    wstring convert(const vector<int>& v); //преобразование вектор-строка
+    wstring getValidKey(const wstring & s);
+    wstring getValidOpenText(const wstring & s);
+    wstring getValidCipherText(const wstring & s);
 public:
-    explicit cipher_error(const std::string& what_arg) : std::invalid_argument(what_arg) {}
-    explicit cipher_error(const char* what_arg) : std::invalid_argument(what_arg) {}
+    modAlphaCipher()=delete; //запретим конструктор без параметров
+    modAlphaCipher(const wstring& skey); //конструктор для установки ключа
+    wstring encrypt(const wstring& open_text); //зашифрование
+    wstring decrypt(const wstring& cipher_text);//расшифрование
 };
 
-class modAlphaCipher {
-private:
-    wstring numAlpha = L"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-    map<wchar_t, int> alphaNum;
-    vector<int> key;
-    vector<int> convert(const wstring& s);
-    wstring convert(const vector<int>& v);
-    wstring getValidKey(const wstring& s);
-    wstring getValidOpenText(const wstring& s);
-    wstring getValidCipherText(const wstring& s);
-
+class cipher_error: public invalid_argument
+{
 public:
-    modAlphaCipher() = delete;
-    modAlphaCipher(const wstring& skey);
-    wstring encrypt(const wstring& open_text);
-    wstring decrypt(const wstring& cipher_text);
+    explicit cipher_error (const string& what_arg):
+        invalid_argument(what_arg) {}
+    explicit cipher_error (const char* what_arg):
+        invalid_argument(what_arg) {}
 };
